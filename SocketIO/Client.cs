@@ -161,9 +161,9 @@ namespace SocketIOClient
 						else
 						{
 							string wsScheme = (uri.Scheme == Uri.UriSchemeHttps ? "wss" : "ws");
-							//uri.Host;
+							string host = uri.Host.Contains("localhost") || uri.Host.Contains("127.0.0.1") ? IPAddress.Loopback.ToString() : uri.Host;
 							this.wsClient = new WebSocket(
-								string.Format("{0}://{1}:{2}/socket.io/1/websocket/{3}", wsScheme, IPAddress.Loopback, uri.Port, this.HandShake.SID),
+								string.Format("{0}://{1}:{2}/socket.io/1/websocket/{3}", wsScheme, host, uri.Port, this.HandShake.SID),
 								string.Empty,
 								this.socketVersion);
 							this.wsClient.EnableAutoSendPing = false; // #4 tkiley: Websocket4net client library initiates a websocket heartbeat, causes delivery problems
