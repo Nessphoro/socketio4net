@@ -1,0 +1,5 @@
+/Users/ales/Projects/Ayls/Rockhewers/socketio4net/SocketIO/obj/Debug/.NETFramework,Version=v4.0.AssemblyAttribute.cs
+/Users/ales/Projects/Ayls/Rockhewers/socketio4net/bin/debug/SocketIOClient.dll.mdb
+/Users/ales/Projects/Ayls/Rockhewers/socketio4net/bin/debug/SocketIOClient.dll
+/Users/ales/Projects/Ayls/Rockhewers/socketio4net/SocketIO/obj/Debug/SocketIOClient.dll
+/Users/ales/Projects/Ayls/Rockhewers/socketio4net/SocketIO/obj/Debug/SocketIOClient.dll.mdb

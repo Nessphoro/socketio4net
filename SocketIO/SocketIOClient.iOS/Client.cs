@@ -7,7 +7,6 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using SocketIOClient.Eventing;
 using SocketIOClient.Messages;
 using WebSocket4Net;
@@ -162,8 +161,9 @@ namespace SocketIOClient
 						else
 						{
 							string wsScheme = (uri.Scheme == Uri.UriSchemeHttps ? "wss" : "ws");
+							//uri.Host;
 							this.wsClient = new WebSocket(
-								string.Format("{0}://{1}:{2}/socket.io/1/websocket/{3}", wsScheme, uri.Host, uri.Port, this.HandShake.SID),
+								string.Format("{0}://{1}:{2}/socket.io/1/websocket/{3}", wsScheme, IPAddress.Loopback, uri.Port, this.HandShake.SID),
 								string.Empty,
 								this.socketVersion);
 							this.wsClient.EnableAutoSendPing = false; // #4 tkiley: Websocket4net client library initiates a websocket heartbeat, causes delivery problems
@@ -266,13 +266,13 @@ namespace SocketIOClient
 			IMessage msg = null;
 			switch (lceventName)
 			{
-			case "message":
-				if (payload is string) 
-					msg = new TextMessage () { MessageText = payload.ToString() };
-				else
-					msg = new JSONMessage(payload);
-					this.Send(msg);
-					break;
+				case "message":
+					if (payload is string) 
+						msg = new TextMessage () { MessageText = payload.ToString() };
+					else
+						msg = new JSONMessage(payload);
+						this.Send(msg);
+						break;
 				case "connect":
 				case "disconnect":
 				case "open":

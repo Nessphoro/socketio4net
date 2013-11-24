@@ -1,0 +1,17 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.IPhone.IPhoneDeviceTarget.Bilbo" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="SocketIOClient.iOS/Messages/RegistrationManager.cs">
+    <Files>
+      <File FileName="SocketIOClient.iOS/Messages/EventMessage.cs" Line="37" Column="95" />
+      <File FileName="SocketIOClient.iOS/Client.cs" Line="13" Column="7" />
+      <File FileName="SocketIOClient.iOS/Messages/AckMessage.cs" Line="26" Column="19" />
+      <File FileName="SocketIOClient.iOS/Messages/RegistrationManager.cs" Line="43" Column="4" />
+      <File FileName="SocketIOClient.iOS/IClient.cs" Line="28" Column="82" />
+      <File FileName="SocketIOClient.iOS/IEndPointClient.cs" Line="11" Column="60" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
