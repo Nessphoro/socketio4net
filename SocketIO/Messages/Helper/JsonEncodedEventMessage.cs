@@ -9,10 +9,10 @@ namespace SocketIOClient.Messages
 {
     public class JsonEncodedEventMessage
     {
-        [JsonProperty(PropertyName="name")]
+		[JsonProperty("name")]
         public string Name { get; set; }
 
-        [JsonProperty(PropertyName = "args")]
+		[JsonProperty("args")]
 		public object[] Args { get; set; }
 
         public JsonEncodedEventMessage()
@@ -36,7 +36,9 @@ namespace SocketIOClient.Messages
             {
                 var firstArg = this.Args.FirstOrDefault();
                 if (firstArg != null)
-                    return JsonConvert.DeserializeObject<T>(firstArg.ToString());
+				{
+					return JsonConvert.DeserializeObject<T>(firstArg.ToString()); 
+				}
             }
             catch (Exception ex)
             {
@@ -50,20 +52,22 @@ namespace SocketIOClient.Messages
             List<T> items = new List<T>();
             foreach (var i in this.Args)
             {
-				items.Add( JsonConvert.DeserializeObject<T>(i.ToString()));
+				items.Add(JsonConvert.DeserializeObject<T>(i.ToString()));
             }
             return items.AsEnumerable();
         }
 
         public string ToJsonString()
         {
-            return JsonConvert.SerializeObject(this, Formatting.None);
+			return JsonConvert.SerializeObject(this, Formatting.None);
         }
 
         public static JsonEncodedEventMessage Deserialize(string jsonString)
         {
 			JsonEncodedEventMessage msg = null;
-			try { msg = JsonConvert.DeserializeObject<JsonEncodedEventMessage>(jsonString); }
+			try { 			
+				msg = JsonConvert.DeserializeObject<JsonEncodedEventMessage>(jsonString);  
+			}
 			catch (Exception ex)
 			{
 				Trace.WriteLine(ex);

@@ -10,12 +10,12 @@ namespace SocketIOClient.Eventing
 {
 	public class RegistrationManager : IDisposable
 	{
-		private ConcurrentDictionary<int, Action<dynamic>> callBackRegistry;
+		private ConcurrentDictionary<int, Action<object>> callBackRegistry;
 		private ConcurrentDictionary<string, Action<IMessage>> eventNameRegistry;
 
 		public RegistrationManager()
 		{
-			this.callBackRegistry = new ConcurrentDictionary<int, Action<dynamic>>();
+			this.callBackRegistry = new ConcurrentDictionary<int, Action<object>>();
 			this.eventNameRegistry = new ConcurrentDictionary<string, Action<IMessage>>();
 		}
 		
@@ -25,14 +25,14 @@ namespace SocketIOClient.Eventing
 			if (eventMessage != null)
 				this.callBackRegistry.AddOrUpdate(eventMessage.AckId.Value, eventMessage.Callback, (key, oldValue) => eventMessage.Callback);
 		}
-		public void AddCallBack(int ackId, Action<dynamic> callback)
+		public void AddCallBack(int ackId, Action<object> callback)
 		{
 			this.callBackRegistry.AddOrUpdate(ackId, callback, (key, oldValue) => callback);
 		}
 		
 		public void InvokeCallBack(int? ackId, string value)
 		{
-			Action<dynamic> target = null;
+			Action<object> target = null;
 			if (ackId.HasValue)
 			{
 				if (this.callBackRegistry.TryRemove(ackId.Value, out target)) // use TryRemove - callbacks are one-shot event registrations
@@ -43,7 +43,7 @@ namespace SocketIOClient.Eventing
 		}
 		public void InvokeCallBack(int? ackId, JsonEncodedEventMessage value)
 		{
-			Action<dynamic> target = null;
+			Action<object> target = null;
 			if (ackId.HasValue)
 			{
 				if (this.callBackRegistry.TryRemove(ackId.Value, out target))

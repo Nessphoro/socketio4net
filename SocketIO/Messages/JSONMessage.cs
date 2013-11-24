@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Json;
 using Newtonsoft.Json;
-
 
 namespace SocketIOClient.Messages
 {
@@ -11,12 +11,14 @@ namespace SocketIOClient.Messages
     {
         public void SetMessage(object value)
         {
-            this.MessageText = JsonConvert.SerializeObject(value, Formatting.None);
+			this.MessageText = JsonConvert.SerializeObject (value, Formatting.None);
         }
 
         public virtual T Message<T>()
         {
-            try { return JsonConvert.DeserializeObject<T>(this.MessageText); }
+            try { 
+				return JsonConvert.DeserializeObject<T>(this.MessageText);
+			}
             catch (Exception ex)
             {
                 // add error logging here
@@ -33,7 +35,7 @@ namespace SocketIOClient.Messages
         {
             this.AckId = ackId;
             this.Endpoint = endpoint;
-            this.MessageText = JsonConvert.SerializeObject(jsonObject, Formatting.None);
+			this.MessageText = JsonConvert.SerializeObject(jsonObject, Formatting.None);
         }
 
         public static JSONMessage Deserialize(string rawMessage)

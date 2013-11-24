@@ -37,7 +37,7 @@
     <Reference Include="monotouch" />
     <Reference Include="System.Json" />
     <Reference Include="Newtonsoft.Json">
-      <HintPath>Libs\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\Reference\Json.Net\Newtonsoft.Json.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -75,11 +75,11 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\websocket4net\WebSocket4Net.MonoTouch\WebSocket4Net.MonoTouch.csproj">
+    <ProjectReference Include="..\Reference\websocket4net\WebSocket4Net.MonoTouch\WebSocket4Net.MonoTouch.csproj">
       <Project>{3A42609F-0DC8-4F4E-9069-8D7782592577}</Project>
       <Name>WebSocket4Net.MonoTouch</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\websocket4net\Reference\supersocket.clientengine\Core\Core.MonoTouch.csproj">
+    <ProjectReference Include="..\Reference\websocket4net\Reference\supersocket.clientengine\Core\Core.MonoTouch.csproj">
       <Project>{9A11BF63-8F81-481C-92C6-16B61250DACB}</Project>
       <Name>Core.MonoTouch</Name>
     </ProjectReference>
