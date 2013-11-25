@@ -1,3 +1,6 @@
 [submodule "Reference/websocket4net"]
 	path = Reference/websocket4net
 	url = https://github.com/ayls/websocket4net.git
+[submodule ".\\Reference\\websocket4net"]
+	path = .\\Reference\\websocket4net
+	url = https://github.com/ayls/websocket4net.git
