@@ -89,7 +89,7 @@ namespace SocketIOClient.Eventing
 			}
 			catch (Exception ex)
 			{
-				Trace.WriteLine("Exception on InvokeOnEvent: " + ex.Message);
+				Debug.WriteLine("Exception on InvokeOnEvent: " + ex.Message);
 			}
 			return foundEvent;
 		}

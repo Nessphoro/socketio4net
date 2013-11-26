@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using System.Threading.Collections;
 using System.Threading.Tasks;
 using SocketIOClient.Eventing;
 using SocketIOClient.Messages;
@@ -179,7 +180,7 @@ namespace SocketIOClient
 					
 					catch (Exception ex)
 					{
-						Trace.WriteLine(string.Format("Connect threw an exception...{0}", ex.Message));
+						Debug.WriteLine(string.Format("Connect threw an exception...{0}", ex.Message));
 						this.OnErrorEvent(this, new ErrorEventArgs("SocketIO.Client.Connect threw an exception", ex));
 					}
 				}
@@ -206,7 +207,7 @@ namespace SocketIOClient
 			this.Connect();
 
 			bool connected = this.ConnectionOpenEvent.WaitOne(4000); // block while waiting for connection
-			Trace.WriteLine(string.Format("\tRetry-Connection successful: {0}", connected));
+			Debug.WriteLine(string.Format("\tRetry-Connection successful: {0}", connected));
 			if (connected)
 				this.retryConnectionCount = 0;
 			else
@@ -339,7 +340,7 @@ namespace SocketIOClient
 			var handler = this.Message;
 			if (handler != null && !skip)
 			{
-				Trace.WriteLine(string.Format("webSocket_OnMessage: {0}", msg.RawMessage));
+				Debug.WriteLine(string.Format("webSocket_OnMessage: {0}", msg.RawMessage));
 				handler(this, new MessageEventArgs(msg));
 			}
 		}
@@ -400,7 +401,7 @@ namespace SocketIOClient
 				if (this.wsClient.State == WebSocketState.Connecting || this.wsClient.State == WebSocketState.Open)
 				{
 					try { this.wsClient.Close(); }
-					catch { Trace.WriteLine("exception raised trying to close websocket: can safely ignore, socket is being closed"); }
+					catch { Debug.WriteLine("exception raised trying to close websocket: can safely ignore, socket is being closed"); }
 				}
 				this.wsClient = null;
 			}
@@ -416,7 +417,7 @@ namespace SocketIOClient
 			if (this.Opened != null)
 			{
 				try { this.Opened(this, EventArgs.Empty); }
-				catch (Exception ex) { Trace.WriteLine(ex); }
+				catch (Exception ex) { Debug.WriteLine(ex); }
 			}
 
 		}
@@ -433,7 +434,7 @@ namespace SocketIOClient
 			IMessage iMsg = SocketIOClient.Messages.Message.Factory(e.Message);
 
 			if (iMsg.Event == "responseMsg")
-				Trace.WriteLine(string.Format("InvokeOnEvent: {0}", iMsg.RawMessage));
+				Debug.WriteLine(string.Format("InvokeOnEvent: {0}", iMsg.RawMessage));
 
 			switch (iMsg.MessageType)
 			{
@@ -456,7 +457,7 @@ namespace SocketIOClient
 					this.registrationManager.InvokeCallBack(iMsg.AckId, iMsg.Json);
 					break;
 				default:
-					Trace.WriteLine("unknown wsClient message Received...");
+					Debug.WriteLine("unknown wsClient message Received...");
 					break;
 			}
 		}
@@ -493,7 +494,7 @@ namespace SocketIOClient
 				try { this.Error.Invoke(this, e); }
 				catch { }
 			}
-			Trace.WriteLine(string.Format("Error Event: {0}\r\n\t{1}", e.Message, e.Exception));
+			Debug.WriteLine(string.Format("Error Event: {0}\r\n\t{1}", e.Message, e.Exception));
 		}
 		protected void OnSocketConnectionClosedEvent(object sender, EventArgs e)
 		{
@@ -502,16 +503,16 @@ namespace SocketIOClient
 					try { this.SocketConnectionClosed(sender, e); }
 					catch { }
 				}
-			Trace.WriteLine("SocketConnectionClosedEvent");
+			Debug.WriteLine("SocketConnectionClosedEvent");
 		}
 		protected void OnConnectionRetryAttemptEvent(object sender, EventArgs e)
 		{
 			if (this.ConnectionRetryAttempt != null)
 			{
 				try { this.ConnectionRetryAttempt(sender, e); }
-				catch (Exception ex) { Trace.WriteLine(ex); }
+				catch (Exception ex) { Debug.WriteLine(ex); }
 			}
-			Trace.WriteLine(string.Format("Attempting to reconnect: {0}", this.retryConnectionCount));
+			Debug.WriteLine(string.Format("Attempting to reconnect: {0}", this.retryConnectionCount));
 		}
 
 		// Housekeeping
@@ -534,23 +535,20 @@ namespace SocketIOClient
 				catch(Exception ex)
 				{
 					// 
-					Trace.WriteLine(string.Format("OnHeartBeatTimerCallback Error Event: {0}\r\n\t{1}", ex.Message, ex.InnerException));
+					Debug.WriteLine(string.Format("OnHeartBeatTimerCallback Error Event: {0}\r\n\t{1}", ex.Message, ex.InnerException));
 				}
 			}
 		}
 		private void EndAsyncEvent(IAsyncResult result)
 		{
-			var ar = (System.Runtime.Remoting.Messaging.AsyncResult)result;
-			var invokedMethod = (EventHandler)ar.AsyncDelegate;
-
 			try
 			{
-				invokedMethod.EndInvoke(result);
+                this.HeartBeatTimerEvent.EndInvoke(result);
 			}
 			catch
 			{
 				// Handle any exceptions that were thrown by the invoked method
-				Trace.WriteLine("An event listener went kaboom!");
+				Debug.WriteLine("An event listener went kaboom!");
 			}
 		}
 		/// <summary>
@@ -575,7 +573,7 @@ namespace SocketIOClient
 					}
 					catch(Exception ex)
 					{
-						Trace.WriteLine("The outboundQueue is no longer open...");
+						Debug.WriteLine("The outboundQueue is no longer open...");
 					}
 				}
 				else
@@ -598,49 +596,76 @@ namespace SocketIOClient
 			string value = string.Empty;
 			string errorText = string.Empty;
 
-			using (WebClient client = new WebClient())
+		    WebClient client = new WebClient();
+            try 
 			{
 				try
 				{
-					if (this.HandShake.Headers.Count > 0)
-						client.Headers.Add(this.HandShake.Headers);
-					value = client.DownloadString(string.Format("{0}://{1}:{2}/socket.io/1/{3}", uri.Scheme, uri.Host, uri.Port, uri.Query)); // #5 tkiley: The uri.Query is available in socket.io's handshakeData object during authorization
-					// 13052140081337757257:15:25:websocket,htmlfile,xhr-polling,jsonp-polling
-					if (string.IsNullOrEmpty(value))
-						errorText = "Did not receive handshake from server";
+				    if (this.HandShake.Headers.Count > 0)
+				    {
+#if WINDOWS_PHONE
+				        foreach (var header in this.HandShake.Headers)
+				        {
+				            client.Headers[header.Key] = header.Value;
+				        }
+#else
+				        client.Headers.Add(this.HandShake.Headers);
+#endif
+				    }
+
+#if WINDOWS_PHONE
+				    var signal = new ManualResetEvent(false);
+                    client.DownloadStringCompleted += (sender, e) =>
+                        {
+                            value = e.Result;
+                            signal.Set();
+                        };
+                    client.DownloadStringAsync(new Uri(string.Format("{0}://{1}:{2}/socket.io/1/{3}", uri.Scheme, uri.Host, uri.Port,
+                                        uri.Query)));
+
+				    signal.WaitOne();
+#else
+				    value =
+				        client.DownloadString(string.Format("{0}://{1}:{2}/socket.io/1/{3}", uri.Scheme, uri.Host, uri.Port,
+				                                            uri.Query));
+                    // #5 tkiley: The uri.Query is available in socket.io's handshakeData object during authorization
+				    // 13052140081337757257:15:25:websocket,htmlfile,xhr-polling,jsonp-polling
+				    if (string.IsNullOrEmpty(value))
+				        errorText = "Did not receive handshake from server";
+#endif
 				}
 				catch (WebException webEx)
 				{
-					Trace.WriteLine(string.Format("Handshake threw an exception...{0}", webEx.Message));
-					switch (webEx.Status)
-					{
-						case WebExceptionStatus.ConnectFailure:
-							errorText = string.Format("Unable to contact the server: {0}", webEx.Status);
-							break;
-						case WebExceptionStatus.NameResolutionFailure:
-							errorText = string.Format("Unable to resolve address: {0}", webEx.Status);
-							break;
-						case WebExceptionStatus.ProtocolError:
-							var resp = webEx.Response as HttpWebResponse;//((System.Net.HttpWebResponse)(webEx.Response))
-							if (resp != null)
-							{
-								switch (resp.StatusCode)
-								{
-									case HttpStatusCode.Forbidden:
-										errorText = "Socket.IO Handshake Authorization failed";
-										break;
-									default:
-										errorText = string.Format("Handshake response status code: {0}", resp.StatusCode);
-										break;
-								}
-							}
-							else
-								errorText = string.Format("Error getting handshake from Socket.IO host instance: {0}", webEx.Message);
-							break;
-						default:
-							errorText = string.Format("Handshake threw an exception...{0}", webEx.Message);
-							break;
-					}
+				    Debug.WriteLine(string.Format("Handshake threw an exception...{0}", webEx.Message));
+				    switch (webEx.Status)
+				    {
+				        case WebExceptionStatus.ConnectFailure:
+				            errorText = string.Format("Unable to contact the server: {0}", webEx.Status);
+				            break;
+				        case WebExceptionStatus.NameResolutionFailure:
+				            errorText = string.Format("Unable to resolve address: {0}", webEx.Status);
+				            break;
+				        case WebExceptionStatus.ProtocolError:
+				            var resp = webEx.Response as HttpWebResponse; //((System.Net.HttpWebResponse)(webEx.Response))
+				            if (resp != null)
+				            {
+				                switch (resp.StatusCode)
+				                {
+				                    case HttpStatusCode.Forbidden:
+				                        errorText = "Socket.IO Handshake Authorization failed";
+				                        break;
+				                    default:
+				                        errorText = string.Format("Handshake response status code: {0}", resp.StatusCode);
+				                        break;
+				                }
+				            }
+				            else
+				                errorText = string.Format("Error getting handshake from Socket.IO host instance: {0}", webEx.Message);
+				            break;
+				        default:
+				            errorText = string.Format("Handshake threw an exception...{0}", webEx.Message);
+				            break;
+				    }
 				}
 				catch (Exception ex)
 				{
@@ -648,6 +673,12 @@ namespace SocketIOClient
 					//this.OnErrorEvent(this, new ErrorEventArgs(errMsg));
 				}
 			}
+            finally
+            {
+#if !WINDOWS_PHONE
+				    client.Dispose();
+#endif
+            }
 			if (string.IsNullOrEmpty(errorText))
 				this.HandShake.UpdateFromSocketIOResponse(value);
 			else
