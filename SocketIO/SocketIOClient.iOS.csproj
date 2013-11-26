@@ -37,7 +37,7 @@
     <Reference Include="monotouch" />
     <Reference Include="System.Json" />
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\Reference\Json.Net\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\Reference\iOS\Newtonsoft.Json.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

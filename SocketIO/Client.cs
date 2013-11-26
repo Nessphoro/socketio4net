@@ -6,11 +6,14 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading;
-using System.Threading.Collections;
 using System.Threading.Tasks;
 using SocketIOClient.Eventing;
 using SocketIOClient.Messages;
 using WebSocket4Net;
+
+#if WINDOWS_PHONE
+using System.Threading.Collections;
+#endif
 
 namespace SocketIOClient
 {
