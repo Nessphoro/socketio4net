@@ -11,10 +11,6 @@ using SocketIOClient.Eventing;
 using SocketIOClient.Messages;
 using WebSocket4Net;
 
-#if WINDOWS_PHONE
-using System.Threading.Collections;
-#endif
-
 namespace SocketIOClient
 {
 	/// <summary>
